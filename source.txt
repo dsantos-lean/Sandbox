@@ -1,0 +1,3 @@
+47ck Smith
+    age 25
+    income 64
