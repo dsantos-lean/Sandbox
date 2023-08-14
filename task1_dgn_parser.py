@@ -33,7 +33,7 @@ def parse_attribute(lines, node_label, graph):
     # <attribute> ::= <label> " " <number>
     # check for a "label", then a space, then a number
     line = lines.pop(0)  # grab the next line and consume it
-    while not line.startswith('\n'):
+    while not line.startswith('\n') and len(lines) != 0:
         line = line.strip()
         tokens = line.rsplit(" ", 1)  # split from the right, spit only 1 time
 
@@ -87,6 +87,5 @@ def dgn_parser(filename):
         # parse_attribute(lines, "Jack Smith", graph)  # DONE!
 
         return graph
-
 
 print(dgn_parser('basic_test.dgn'))
