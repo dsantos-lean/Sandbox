@@ -46,13 +46,11 @@ def parse_attribute(lines, node_label, graph):
 
         number = parse_number(tokens[1])
 
-        print(label, number)
+        # print(label, number)
 
         # attribute_dict = {label: number}
         graph[node_label][label] = number
         line = lines.pop(0)
-    node_label = parse_label(lines)
-    parse_attribute(lines, node_label, graph)
 
 
 def parse_label(lines):
@@ -66,19 +64,29 @@ def parse_label(lines):
 
 # can we get the file as a list of lines of text?
 
-with open("basic_test.dgn") as file:
-    lines = file.readlines()
-    # print(lines)
-    #
-    # for line in lines:
-    #     print(line)
 
-    # prototype graph
-    graph = {}
-    node_label = parse_label(lines)
-    # graph["Jack Smith"] = {}
-    graph[node_label] = {}
-    # print(parse_number(lines))  # DONE!
-    # parse_attribute(lines, "Jack Smith", graph)  # DONE!
-    parse_attribute(lines, node_label, graph)
-    print(graph)
+def dgn_parser(filename):
+    with open(filename) as file:
+        lines = file.readlines()
+        # print(lines)
+        #
+        # for line in lines:
+        #     print(line)
+
+        # prototype graph
+
+        graph = {}
+        while lines:
+            node_label = parse_label(lines)
+            graph[node_label] = {}
+            parse_attribute(lines, node_label, graph)
+
+        # graph["Jack Smith"] = {}
+
+        # print(parse_number(lines))  # DONE!
+        # parse_attribute(lines, "Jack Smith", graph)  # DONE!
+
+        return graph
+
+
+print(dgn_parser('basic_test.dgn'))
