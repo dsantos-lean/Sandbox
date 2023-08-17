@@ -57,25 +57,31 @@ def parse_attribute(lines):
     number = parse_number(parts[1])
     # result = " ".join([attribute_label, str(number)])
     result = attribute_label, str(number)
-    print(type(result))
     return result
 
-# def parse_attributes(line):
-#     # <attributes> ::= <indentation> <attribute> {"\n" <indentation> <attribute>} "\n"
-#     attributes = {}
-#     while line != '\n':
-#         attribute = [parse_attribute(line)]
-#         attributes.update(attribute)
-#         line = line.pop()
-#     return attributes
-#
 
+def parse_attributes(lines):
+    # <attributes> ::= <indentation> <attribute> {"\n" <indentation> <attribute>} "\n"
+    attributes = {}
+    while lines[0] != '\n':
+        attribute = [parse_attribute(lines)]
+        attributes.update(attribute)
+    return attributes
+
+def parse_node(lines):
+    graph = {}
+    label = parse_label(lines)
+    attributes = parse_attributes(lines)
+    graph[label] = {}
+    graph[label] = attributes
+    return graph
 
 
 
 # print(f'This should be Jack Smith, result: {parse_label(lines)}')
 # print(parse_attribute(lines))
 # print(parse_label(lines))
-print(parse_attribute(lines))
-# print(parse_attributes(current_line))
+# print(parse_attribute(lines))
+# print(parse_attributes(lines))
+print(parse_node(lines))
 # dgn_parser('source.txt')
