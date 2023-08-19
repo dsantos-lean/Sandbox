@@ -1,10 +1,13 @@
 import string
+import sys
+sys.setrecursionlimit(1200)  #
 
 
 graph = {}
 
 
 def dgn_parser(filename):
+    # < graph >: := < item > {"\n" < item >}
     with open(filename) as file:
         lines = file.readlines()
         graph = item(lines)
@@ -13,25 +16,14 @@ def dgn_parser(filename):
 
 def parse_number(line):
     # <number> ::= [ "-" ] ( <integer> | <float> )
-    # a number optionally starts with a -
-    # and then is followed by an int or a float
-
-    # line = lines.pop(0)  # grab the next line and consume it
-    # line = line.strip()
-
     is_negative = False
     if line[0] == "-":
         is_negative = True
         line = line[1:]
 
-    # compute the number
-
-    # can I tell if the line contains only digits?
     if line.isdigit():
-        # the line must be an integer!
         number = int(line)
     else:
-        # assume that it is a float??? :)
         number = float(line)
 
     if is_negative:
@@ -42,13 +34,16 @@ def parse_number(line):
 def parse_label(lines):
     # <label> ::= <letter> { <letter> }
     if isinstance(lines, list):
-        line = lines.pop(0)
-        if line == '\n':
-            line = parse_label(lines)
-        line = line.strip()
-        common_letters = set(line) & set(string.ascii_letters)
-        if len(common_letters) == 0:
-            raise ValueError("invalid label")
+        if len(lines) != 0:
+            line = lines.pop(0)
+            if line == '\n':
+                line = parse_label(lines)
+            line = line.strip()
+            common_letters = set(line) & set(string.ascii_letters)
+            if len(common_letters) == 0:
+                raise ValueError("invalid label")
+        else:
+            return lines
     else:
         line = lines
 
@@ -63,8 +58,7 @@ def parse_attribute(lines):
         parts = line.rsplit(" ", 1)
         attribute_label = parse_label(parts[0])
         number = parse_number(parts[1])
-        # result = " ".join([attribute_label, str(number)])
-        result = attribute_label, number  # str(number)
+        result = attribute_label, number
         return result
 
 
@@ -78,14 +72,10 @@ def parse_attributes(lines):
         if None not in attribute:
             attributes.update(attribute)
     return attributes
-    # if len(attributes) == 0:
-    #     del attributes
-
 
 def parse_node(label, lines, graph):
-    # print(f'Hello {graph}')
+    # < nodeblock >: := < label > "\n" < attributes >
     while len(lines) > 0:
-        # label = parse_label(lines)
         attributes = parse_attributes(lines)
         graph[label] = {}
         graph[label].update(attributes)
@@ -94,20 +84,24 @@ def parse_node(label, lines, graph):
 
 
 def parse_edge(label, lines, graph):
+    # <edgeblock> ::= <label> ": " <label> "\n" <attributes>
     inner_graph = {}
     graph_keys = [keys for keys in graph.keys()]
-    parts = label.split(": ", 1)
-    node_label = parts[0]
-    edge_label = parts[1]
-    if node_label in graph_keys:
-        attributes = parse_attributes(lines)
-        inner_graph[edge_label] = {}
-        inner_graph[edge_label].update(attributes)
-        graph[node_label].update(inner_graph)
+    while len(lines) > 0:
+        parts = label.split(": ", 1)
+        node_label = parts[0]
+        edge_label = parts[1]
+        if node_label in graph_keys:
+            attributes = parse_attributes(lines)
+            inner_graph[edge_label] = {}
+            inner_graph[edge_label].update(attributes)
+            graph[node_label].update(inner_graph)
+            item(lines)
     return graph
 
 
 def item(lines):
+    # < item >: := < nodeblock > | < edgeblock >
     label = parse_label(lines)
     if ':' in label:
         result = parse_edge(label, lines, graph)
