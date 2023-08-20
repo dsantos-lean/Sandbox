@@ -1,5 +1,6 @@
 import string
 import sys
+from ast import literal_eval
 sys.setrecursionlimit(1200)  #
 
 
@@ -8,10 +9,12 @@ graph = {}
 
 def dgn_parser(filename):
     # < graph >: := < item > {"\n" < item >}
-    with open(filename) as file:
-        lines = file.readlines()
+    with open(filename) as infile:
+        lines = infile.readlines()
         graph = item(lines)
-    print(graph)
+    with open('parse.pon', 'w') as outfile:
+        outfile.write(str(graph))
+    return graph
 
 
 def parse_number(line):
@@ -121,4 +124,9 @@ def item(lines):
 # parse_edge(lines)
 
 
-dgn_parser('source.txt')
+dgn_graph = dgn_parser('source.txt')
+
+with open('parse.pon', 'r') as file:
+    text = file.read()
+    result_graph = literal_eval(text)
+    assert dgn_graph == result_graph
